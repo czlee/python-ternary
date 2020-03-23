@@ -425,31 +425,31 @@ class TernaryAxesSubplot(object):
         plotting.plot_colored_trajectory(points, cmap=cmap, ax=ax,
                                          permutation=permutation, **kwargs)
 
-    def heatmap(self, data, scale=None, cmap=None, scientific=False,
+    def heatmap(self, data, scale=None, step=1, cmap=None, scientific=False,
                 style='triangular', colorbar=True, use_rgba=False,
                 vmin=None, vmax=None, cbarlabel=None, cb_kwargs=None):
         permutation = self._permutation
         if not scale:
             scale = self.get_scale()
         if style.lower()[0] == 'd':
-            self._boundary_scale = scale + 1
+            self._boundary_scale = scale + step
         ax = self.get_axes()
-        heatmapping.heatmap(data, scale, cmap=cmap, style=style, ax=ax,
+        heatmapping.heatmap(data, scale, step=step, cmap=cmap, style=style, ax=ax,
                             scientific=scientific, colorbar=colorbar,
                             permutation=permutation, use_rgba=use_rgba,
                             vmin=vmin, vmax=vmax, cbarlabel=cbarlabel,
                             cb_kwargs=cb_kwargs)
 
-    def heatmapf(self, func, scale=None, cmap=None, boundary=True,
+    def heatmapf(self, func, scale=None, step=1, cmap=None, boundary=True,
                  style='triangular', colorbar=True, scientific=True,
                  vmin=None, vmax=None, cbarlabel=None, cb_kwargs=None):
         if not scale:
             scale = self.get_scale()
         if style.lower()[0] == 'd':
-            self._boundary_scale = scale + 1
+            self._boundary_scale = scale + step
         permutation = self._permutation
         ax = self.get_axes()
-        heatmapping.heatmapf(func, scale, cmap=cmap, style=style,
+        heatmapping.heatmapf(func, scale, step=step, cmap=cmap, style=style,
                              boundary=boundary, ax=ax, scientific=scientific,
                              colorbar=colorbar, permutation=permutation,
                              vmin=vmin, vmax=vmax, cbarlabel=cbarlabel,

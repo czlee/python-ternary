@@ -137,13 +137,14 @@ def hexagon_coordinates(i, j, k):
 
 ## Heatmaps ##
 
-def polygon_generator(data, scale, style, permutation=None):
+def polygon_generator(data, scale, step, style, permutation=None):
     """Generator for the vertices of the polygon to be colored and its color,
     depending on style. Called by heatmap."""
 
     # We'll project the coordinates inside this function to prevent
     # passing around permutation more than necessary
-    project = functools.partial(project_point, permutation=permutation)
+    project = functools.partial(project_point, permutation=permutation, step=step)
+    scale = int(scale / step)
 
     if isinstance(data, dict):
         data_gen = data.items()
@@ -154,9 +155,10 @@ def polygon_generator(data, scale, style, permutation=None):
     for key, value in data_gen:
         if value is None:
             continue
-        i = key[0]
-        j = key[1]
+        i = int(key[0] / step)
+        j = int(key[1] / step)
         k = scale - i - j
+        print(i, j, k, value)
         if style == 'h':
             vertices = hexagon_coordinates(i, j, k)
             yield (map(project, vertices), value)
@@ -183,7 +185,7 @@ def polygon_generator(data, scale, style, permutation=None):
                 yield (map(project, vertices), value)
 
 
-def heatmap(data, scale, vmin=None, vmax=None, cmap=None, ax=None,
+def heatmap(data, scale, step=1, vmin=None, vmax=None, cmap=None, ax=None,
             scientific=False, style='triangular', colorbar=True,
             permutation=None, use_rgba=False, cbarlabel=None, cb_kwargs=None):
     """
@@ -241,11 +243,13 @@ def heatmap(data, scale, vmin=None, vmax=None, cmap=None, ax=None,
     if style not in ["t", "h", 'd']:
         raise ValueError("Heatmap style must be 'triangular', 'dual-triangular', or 'hexagonal'")
 
-    vertices_values = polygon_generator(data, scale, style,
+    vertices_values = polygon_generator(data, scale, step, style,
                                         permutation=permutation)
 
     # Draw the polygons and color them
     for vertices, value in vertices_values:
+        xs, ys = unzip(vertices)
+        print(xs, ys, value)
         if value is None:
             continue
         if not use_rgba:
@@ -253,7 +257,6 @@ def heatmap(data, scale, vmin=None, vmax=None, cmap=None, ax=None,
         else:
             color = value  # rgba tuple (r,g,b,a) all in [0,1]
         # Matplotlib wants a list of xs and a list of ys
-        xs, ys = unzip(vertices)
         ax.fill(xs, ys, facecolor=color, edgecolor=color)
 
     if not cb_kwargs:
@@ -267,7 +270,7 @@ def heatmap(data, scale, vmin=None, vmax=None, cmap=None, ax=None,
 ## User Convenience Functions ##
 
 
-def heatmapf(func, scale=10, boundary=True, cmap=None, ax=None,
+def heatmapf(func, scale=10, step=1, boundary=True, cmap=None, ax=None,
              scientific=False, style='triangular', colorbar=True,
              permutation=None, vmin=None, vmax=None, cbarlabel=None,
              cb_kwargs=None):
@@ -315,7 +318,7 @@ def heatmapf(func, scale=10, boundary=True, cmap=None, ax=None,
     # Pass everything to the heatmapper
     ax = heatmap(data, scale, cmap=cmap, ax=ax, style=style,
                  scientific=scientific, colorbar=colorbar,
-                 permutation=permutation, vmin=vmin, vmax=vmax, 
+                 permutation=permutation, vmin=vmin, vmax=vmax,
                  cbarlabel=cbarlabel, cb_kwargs=cb_kwargs)
     return ax
 

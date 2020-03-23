@@ -84,7 +84,7 @@ def permute_point(p, permutation=None):
     return [p[int(permutation[i])] for i in range(len(p))]
 
 
-def project_point(p, permutation=None):
+def project_point(p, step=1, permutation=None):
     """
     Maps (x,y,z) coordinates to planar simplex.
 
@@ -100,7 +100,7 @@ def project_point(p, permutation=None):
     b = permuted[1]
     x = a + b/2.
     y = SQRT3OVER2 * b
-    return numpy.array([x, y])
+    return numpy.array([x, y]) * step
 
 
 def project_sequence(s, permutation=None):
@@ -115,7 +115,7 @@ def project_sequence(s, permutation=None):
 
     Returns
     -------
-    xs, ys: The sequence of projected points in coordinates as two lists 
+    xs, ys: The sequence of projected points in coordinates as two lists
     """
 
     xs, ys = unzip([project_point(p, permutation=permutation) for p in s])
@@ -167,7 +167,7 @@ def get_conversion(scale, limits):
                   "r": lambda x: (x - limits['r'][0]) * fr}
 
     return conversion
-    
+
 
 def convert_coordinates_sequence(qs, scale, limits, axisorder):
     """
@@ -195,5 +195,5 @@ def convert_coordinates_sequence(qs, scale, limits, axisorder):
        the points converted to simplex coordinates
     """
     conversion = get_conversion(scale, limits)
-    
+
     return [convert_coordinates(q, conversion, axisorder) for q in qs]
